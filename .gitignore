@@ -2,3 +2,4 @@
 *.devhelper
 library/bdGoogleDrive/DevHelper/Generated
 library/bdGoogleDrive/DevHelper/XFCP
+FileSums.php

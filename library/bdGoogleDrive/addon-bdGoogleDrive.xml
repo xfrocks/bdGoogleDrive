@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="bdGoogleDrive" title="[bd] Google Drive for Attachments" version_string="dev" version_id="1" url="" install_callback_class="bdGoogleDrive_Installer" install_callback_method="install" uninstall_callback_class="bdGoogleDrive_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="bdgoogledrive_accounts_delete"><![CDATA[<xen:title>{xen:phrase bdgoogledrive_confirm_deletion_of_account}: {$account.userInfo.name}</xen:title>
+<xen:h1>{xen:phrase bdgoogledrive_confirm_deletion_of_account}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink options/list/bdGoogleDrive}">{xen:phrase option_group_bdGoogleDrive}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="public:delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink google-drive/accounts/delete}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase bdgoogledrive_please_confirm_that_you_want_to_delete_following_account}:</p>
+	<strong><a href="{$account.userInfo.link}" target="_blank">{$account.userInfo.name}</a></strong>
+
+	<xen:submitunit save="{xen:phrase bdgoogledrive_delete_account}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+	<input type="hidden" name="userId" value="{$account.userInfo.id}" />
+</xen:form>]]></template>
+    <template title="bdgoogledrive_option_accounts"><![CDATA[<xen:controlunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	<xen:html>
+		<ul>
+			<xen:if hascontent="true">
+			<xen:contentcheck>
+			<xen:foreach loop="$accounts" key="$userId" value="$account">
+			<xen:if is="{$account.accessToken} && {$account.userInfo}">
+			<li>
+				<input type="hidden"
+					   name="{$fieldPrefix}[{$preparedOption.option_id}][{$userId}][accessToken]"
+					   value="{$account.accessToken}" />
+
+				<img src="{$account.userInfo.picture}" style="max-height: 15px;" />
+				<a href="{$account.userInfo.link}" target="_blank" tabindex="-1">{$account.userInfo.name}</a>
+				<xen:foreach loop="$account.userInfo" key="$userInfoKey" value="$userInfoValue">
+				<input type="hidden"
+					   name="{$fieldPrefix}[{$preparedOption.option_id}][{$userId}][userInfo][{$userInfoKey}]"
+					   value="{$userInfoValue}" />
+				</xen:foreach>
+
+				<ul>
+					<xen:if is="{$account.about}">
+					<li>{xen:phrase bdgoogledrive_quota_type}: {$account.about.quotaType}</li>
+					<xen:if is="{$account.about.quotaType} === 'LIMITED'">
+					<li>{xen:phrase bdgoogledrive_quota_information,
+						'used_percent={xen:number $account.about.parsed.quotaUsedPercent, 2}',
+						'total={$account.about.parsed.quotaTotal}',
+						'free={$account.about.parsed.quotaFree}'}</li>
+					</xen:if>
+					<xen:else />
+					<li>{xen:phrase bdgoogledrive_about_unavailable}</li>
+					</xen:if>
+
+					<xen:if is="{$account.folders}">
+					<li class="baseHtml">
+						{xen:phrase bdgoogledrive_folders}:
+						<ul>
+							<xen:foreach loop="$account.folders" key="$folderId" value="$folder">
+							<li>
+								<label>
+									<input type="radio" {xen:checked '{$accounts.default.folderId} === {$folderId}'}
+										   name="{$fieldPrefix}[{$preparedOption.option_id}][default][folderId]"
+										   value="{$folderId}" />
+									{$folder.title}
+									(<a href="{$folder.link}" target="_blank" tabindex="-1">{xen:phrase view}</a>)
+								</label>
+
+								<xen:foreach loop="$folder" key="$folderKey" value="$folderValue">
+								<input type="hidden"
+									   name="{$fieldPrefix}[{$preparedOption.option_id}][{$userId}][folders][{$folderId}][{$folderKey}]"
+									   value="{$folderValue}" />
+								</xen:foreach>
+							</li>
+							</xen:foreach>
+						</ul>
+					</li>
+					</xen:if>
+
+					<li><a href="{xen:adminlink google-drive/accounts/delete, '',
+						'userId={$userId}'}" class="OverlayTrigger" tabindex="-1">
+						{xen:phrase bdgoogledrive_delete_account}
+					</a></li>
+				</ul>
+			</li>
+			</xen:if>
+			</xen:foreach>
+			</xen:contentcheck>
+			<xen:else />
+			<li>{xen:phrase n_a}</li>
+			</xen:if>
+
+			<li><a href="{xen:adminlink google-drive/accounts/add}" tabindex="-1">{xen:phrase bdgoogledrive_add_account}</a></li>
+		</ul>
+
+		{xen:raw $editLink}
+	</xen:html>
+</xen:controlunit>
+
+<xen:edithint template="bdgoogledrive_accounts_delete" />
+]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="0" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_DataWriter_AttachmentData" active="1" hint="XenForo_DataWriter_AttachmentData" description="Extending XenForo_DataWriter_AttachmentData (no Event Hint because this need executing asap)"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_Model_Attachment" active="1" hint="XenForo_Model_Attachment" description="XenForo_Model_Attachment"/>
+    <listener event_id="load_class_view" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_ViewPublic_Attachment_View" active="1" hint="XenForo_ViewPublic_Attachment_View" description="XenForo_ViewPublic_Attachment_View"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="bdGoogleDrive" display_order="9999" debug_only="0"/>
+    <option option_id="bdGoogleDrive_accounts" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>bdGoogleDrive_Option::renderAccounts</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bdGoogleDrive" display_order="100"/>
+    </option>
+    <option option_id="bdGoogleDrive_clientDefault" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdGoogleDrive" display_order="99"/>
+    </option>
+    <option option_id="bdGoogleDrive_clientId" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>placeholder=123-xyz.apps.googleusercontent.com</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdGoogleDrive" display_order="10"/>
+    </option>
+    <option option_id="bdGoogleDrive_clientSecret" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>type=password</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdGoogleDrive" display_order="20"/>
+    </option>
+    <option option_id="bdGoogleDrive_scopeDrive" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdGoogleDrive" display_order="50"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="bdgoogledrive_about_unavailable" version_id="1" version_string="dev"><![CDATA[Information about this account is unavailable. Please double check Google Drive permission, server network connectivity or just try adding it again below.]]></phrase>
+    <phrase title="bdgoogledrive_add_account" version_id="1" version_string="dev"><![CDATA[Add Account]]></phrase>
+    <phrase title="bdgoogledrive_add_folder" version_id="1" version_string="dev"><![CDATA[Add Folder]]></phrase>
+    <phrase title="bdgoogledrive_confirm_deletion_of_account" version_id="1" version_string="dev"><![CDATA[Confirm Deletion of Account
+]]></phrase>
+    <phrase title="bdgoogledrive_delete_account" version_id="1" version_string="dev"><![CDATA[Delete Account]]></phrase>
+    <phrase title="bdgoogledrive_folders" version_id="1" version_string="dev"><![CDATA[Folders]]></phrase>
+    <phrase title="bdgoogledrive_please_confirm_that_you_want_to_delete_following_account" version_id="1" version_string="dev"><![CDATA[Account deletion will prevent file clean up from running for existing attachments. Please confirm that you want to delete the following account]]></phrase>
+    <phrase title="bdgoogledrive_quota_information" version_id="1" version_string="dev"><![CDATA[Used {used_percent}% of {total}, free: {free}]]></phrase>
+    <phrase title="bdgoogledrive_quota_type" version_id="1" version_string="dev"><![CDATA[Quota Type]]></phrase>
+    <phrase title="option_bdGoogleDrive_accounts" version_id="1" version_string="dev"><![CDATA[Accounts]]></phrase>
+    <phrase title="option_bdGoogleDrive_accounts_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientDefault" version_id="1" version_string="dev"><![CDATA[Use Default Client]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientDefault_explain" version_id="1" version_string="dev"><![CDATA[Enable this option to use the default client configured in <a href="admin.php?options/list/google" target="_blank" tabindex="-1">"Google Integration" option page</a>.]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientId" version_id="1" version_string="dev"><![CDATA[Google Client ID]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientId_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientSecret" version_id="1" version_string="dev"><![CDATA[Google Client Secret]]></phrase>
+    <phrase title="option_bdGoogleDrive_clientSecret_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+    <phrase title="option_bdGoogleDrive_scopeDrive" version_id="1" version_string="dev"><![CDATA[Request Full Access]]></phrase>
+    <phrase title="option_bdGoogleDrive_scopeDrive_explain" version_id="1" version_string="dev"><![CDATA[Enable this option to request full access for Google Drive, making it possible to use all folders to store data. By default, this add-on only requests scoped-access which limits its permission to folders created by the configured Google API Client itself.]]></phrase>
+    <phrase title="option_group_bdGoogleDrive" version_id="1" version_string="dev"><![CDATA[[bd] Google Drive for Attachments]]></phrase>
+    <phrase title="option_group_bdGoogleDrive_description" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="google-drive" class="bdGoogleDrive_Route_PrefixAdmin_GoogleDrive" build_link="none"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
