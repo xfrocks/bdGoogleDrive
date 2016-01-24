@@ -167,6 +167,12 @@
       <sub_options></sub_options>
       <relation group_id="bdGoogleDrive" display_order="20"/>
     </option>
+    <option option_id="bdGoogleDrive_keepLocalCopy" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bdGoogleDrive" display_order="1000"/>
+    </option>
     <option option_id="bdGoogleDrive_scopeDrive" edit_format="onoff" data_type="unsigned_integer" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -201,6 +207,8 @@
     <phrase title="option_bdGoogleDrive_clientId_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
     <phrase title="option_bdGoogleDrive_clientSecret" version_id="1" version_string="dev"><![CDATA[Google Client Secret]]></phrase>
     <phrase title="option_bdGoogleDrive_clientSecret_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+    <phrase title="option_bdGoogleDrive_keepLocalCopy" version_id="1" version_string="dev"><![CDATA[Keep Local Copy]]></phrase>
+    <phrase title="option_bdGoogleDrive_keepLocalCopy_explain" version_id="1" version_string="dev"><![CDATA[Enable this option to keep a local copy of attachment files. This may take up additional space on your server but make it possible to disable Google Drive integration in case of emergency.]]></phrase>
     <phrase title="option_bdGoogleDrive_scopeDrive" version_id="1" version_string="dev"><![CDATA[Request Full Access]]></phrase>
     <phrase title="option_bdGoogleDrive_scopeDrive_explain" version_id="1" version_string="dev"><![CDATA[Enable this option to request full access for Google Drive, making it possible to use all folders to store data. By default, this add-on only requests scoped-access which limits its permission to folders created by the configured Google API Client itself.]]></phrase>
     <phrase title="option_group_bdGoogleDrive" version_id="1" version_string="dev"><![CDATA[[bd] Google Drive for Attachments]]></phrase>

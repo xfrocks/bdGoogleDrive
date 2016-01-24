@@ -15,19 +15,6 @@ class bdGoogleDrive_XenForo_Model_Attachment extends XFCP_bdGoogleDrive_XenForo_
         }
     }
 
-    public function bdGoogleDrive_getDummyFilePath()
-    {
-        $path = XenForo_Helper_File::getInternalDataPath() . '/bdGoogleDrive/dummy.data';
-        if (!file_exists($path)) {
-            $dir = dirname($path);
-            if (XenForo_Helper_File::createDirectory($dir)) {
-                file_put_contents($path, '');
-            }
-        }
-
-        return $path;
-    }
-
     public function bdGoogleDrive_getAttachmentDataFilePath(array $data)
     {
         if (!empty($data['bdgoogledrive_data'])) {
@@ -36,8 +23,6 @@ class bdGoogleDrive_XenForo_Model_Attachment extends XFCP_bdGoogleDrive_XenForo_
                 $fileUrl = $this->_bdGoogleDrive_getFileModel()->getFileUrl($googleDriveData['full']);
                 $tempFile = bdGoogleDrive_ShippableHelper_TempFile::download($fileUrl);
                 return $tempFile;
-            } else {
-                return $this->bdGoogleDrive_getDummyFilePath();
             }
         }
 

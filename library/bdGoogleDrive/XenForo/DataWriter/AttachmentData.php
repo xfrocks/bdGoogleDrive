@@ -113,7 +113,9 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
 
     protected function _writeAttachmentFile($tempFile, array $data, $thumbnail = false)
     {
-        if (empty($data['bdgoogledrive_data'])) {
+        if (empty($data['bdgoogledrive_data'])
+            || bdGoogleDrive_Option::get('keepLocalCopy')
+        ) {
             // let the default implementation run
             return parent::_writeAttachmentFile($tempFile, $data, $thumbnail);
         } else {
@@ -123,7 +125,9 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
 
     protected function _writeAttachmentFileData($fileData, array $data, $thumbnail = false)
     {
-        if (empty($data['bdgoogledrive_data'])) {
+        if (empty($data['bdgoogledrive_data'])
+            || bdGoogleDrive_Option::get('keepLocalCopy')
+        ) {
             // let the default implementation run
             return parent::_writeAttachmentFileData($fileData, $data, $thumbnail);
         } else {
