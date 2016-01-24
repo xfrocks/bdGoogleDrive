@@ -22,7 +22,11 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
 
         $tempThumbFile = $this->getExtraData(self::DATA_TEMP_THUMB_FILE);
         $thumbData = $this->getExtraData(self::DATA_THUMB_DATA);
-        $thumbFileName = $this->get('file_hash') . '_thumb.jpg';
+        $fileNameExt = XenForo_Helper_File::getFileExtension($this->get('filename'));
+        $fileNameWithoutExt = strlen($fileNameExt) > 0
+            ? substr($this->get('filename'), 0, -1 * strlen($fileNameExt) - 1)
+            : $this->get('filename');
+        $thumbFileName = $fileNameWithoutExt . '_thumb.jpg';
 
         if ($tempThumbFile) {
             $thumbFileHash = md5_file($tempThumbFile);
