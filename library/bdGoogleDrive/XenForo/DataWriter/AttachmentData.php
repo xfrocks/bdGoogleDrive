@@ -2,8 +2,6 @@
 
 class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive_XenForo_DataWriter_AttachmentData
 {
-    protected $_bdGoogleDrive_delayed = false;
-
     public function bdGoogleDrive_saveFiles($accessToken)
     {
         $fullGoogleFile = null;
@@ -67,25 +65,11 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
                 $accessToken = bdGoogleDrive_Option::getAccessToken();
 
                 if (!empty($accessToken)) {
-                    if (bdGoogleDrive_Option::get('delay')) {
-                        // delay option enabled
-                        $this->_bdGoogleDrive_delayed = true;
-                    } else {
-                        $savedFiles = $this->bdGoogleDrive_saveFiles($accessToken);
-                        $this->set('bdgoogledrive_data', $savedFiles);
-                    }
+                    $savedFiles = $this->bdGoogleDrive_saveFiles($accessToken);
+                    $this->set('bdgoogledrive_data', $savedFiles);
                 }
             }
         }
-    }
-
-    protected function _postSave()
-    {
-        if ($this->_bdGoogleDrive_delayed) {
-            $this->_bdGoogleDrive_getDelayModel()->insertDataId($this->get('data_id'));
-        }
-
-        parent::_postSave();
     }
 
     protected function _postDelete()
@@ -126,14 +110,6 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
         } else {
             return true;
         }
-    }
-
-    /**
-     * @return bdGoogleDrive_Model_Delay
-     */
-    protected function _bdGoogleDrive_getDelayModel()
-    {
-        return $this->getModelFromCache('bdGoogleDrive_Model_Delay');
     }
 
     /**
