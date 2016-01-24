@@ -218,6 +218,19 @@ class bdGoogleDrive_Helper_Api
         }
     }
 
+    public static function deleteFile($accessToken, $fileId)
+    {
+        $client = self::_newGoogleClient();
+        self::_setAccessToken($client, $accessToken);
+
+        $driveService = new Google_Service_Drive($client);
+        $deleted = $driveService->files->delete($fileId);
+
+        self::_log('file deleted ($fileId=%s, $deleted=%s)', $fileId, serialize($deleted));
+
+        return true;
+    }
+
     protected static function _newGoogleClient()
     {
         self::_autoload();

@@ -7,13 +7,20 @@ class bdGoogleDrive_Model_File extends XenForo_Model
         return false;
     }
 
-    public function saveFilePath($path, $fileName, $fileHash, $accessToken)
+    public function saveFilePath($path, $fileName, $fileHash, $accessToken = null)
     {
         return $this->saveFileData(file_get_contents($path), $fileName, $fileHash, $accessToken);
     }
 
-    public function saveFileData($data, $fileName, $fileHash, $accessToken)
+    public function saveFileData($data, $fileName, $fileHash, $accessToken = null)
     {
+        if ($accessToken === null) {
+            $accessToken = bdGoogleDrive_Option::getAccessToken();
+        }
+        if (empty($accessToken)) {
+            return array();
+        }
+
         $createdFile = bdGoogleDrive_Helper_Api::uploadFile($accessToken, $fileName, $data, array(
             'description' => $fileHash,
             'parentId' => bdGoogleDrive_Option::getDefaultFolderId(),
@@ -28,9 +35,22 @@ class bdGoogleDrive_Model_File extends XenForo_Model
         return $createdFile;
     }
 
-    public function deleteFile($data)
+    public function deleteFile(array $file, $accessToken = null)
     {
+        if ($accessToken === null) {
+            $accessToken = bdGoogleDrive_Option::getAccessToken();
+        }
+        if (empty($accessToken)) {
+            return false;
+        }
 
+        try {
+            return bdGoogleDrive_Helper_Api::deleteFile($accessToken, $file['id']);
+        } catch (Exception $t) {
+            // ignore
+        }
+
+        return false;
     }
 
     public function getFileUrl(array $file)
