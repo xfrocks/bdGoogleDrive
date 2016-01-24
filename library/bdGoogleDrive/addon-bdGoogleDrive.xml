@@ -90,6 +90,14 @@
 			</li>
 			</xen:if>
 			</xen:foreach>
+			<li>
+				<label>
+					<input type="radio" {xen:checked '!{$accounts.default.folderId}'}
+						   name="{$fieldPrefix}[{$preparedOption.option_id}][default][folderId]"
+						   value="" />
+					{xen:phrase bdgoogledrive_disable_uploading}
+				</label>
+				</li>
 			</xen:contentcheck>
 			<xen:else />
 			<li>{xen:phrase n_a}</li>
@@ -104,8 +112,24 @@
 
 <xen:edithint template="bdgoogledrive_accounts_delete" />
 ]]></template>
+    <template title="bdgoogledrive_tools_rebuild"><![CDATA[<xen:form action="{xen:adminlink 'tools/trigger-deferred'}">
+	<h2 class="subHeading">{xen:phrase bdgoogledrive_move_attachment_data}</h2>
+	<xen:spinboxunit name="options[batch]" value="50" step="50" min="1" label="{xen:phrase items_to_process_per_page}:" />
+
+	<xen:submitunit save="{xen:phrase bdgoogledrive_move_now}" />
+	<input type="hidden" name="cache" value="bdGoogleDrive_Deferred_MoveAttachmentData" />
+</xen:form>
+
+<xen:edithint template="tools_rebuild" />]]></template>
   </admin_templates>
-  <admin_template_modifications/>
+  <admin_template_modifications>
+    <modification template="tools_rebuild" modification_key="bdgoogledrive_tools_rebuild" description="Insert cache rebuilding tools." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#\A.+\z#s]]></find>
+      <replace><![CDATA[$0
+
+<xen:include template="bdgoogledrive_tools_rebuild" />]]></replace>
+    </modification>
+  </admin_template_modifications>
   <code_events/>
   <code_event_listeners>
     <listener event_id="file_health_check" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
@@ -162,7 +186,10 @@
     <phrase title="bdgoogledrive_confirm_deletion_of_account" version_id="1" version_string="dev"><![CDATA[Confirm Deletion of Account
 ]]></phrase>
     <phrase title="bdgoogledrive_delete_account" version_id="1" version_string="dev"><![CDATA[Delete Account]]></phrase>
+    <phrase title="bdgoogledrive_disable_uploading" version_id="1" version_string="dev"><![CDATA[Temporary disable uploading new files to Google Drive]]></phrase>
     <phrase title="bdgoogledrive_folders" version_id="1" version_string="dev"><![CDATA[Folders]]></phrase>
+    <phrase title="bdgoogledrive_move_attachment_data" version_id="1" version_string="dev"><![CDATA[Move Attachment Data]]></phrase>
+    <phrase title="bdgoogledrive_move_now" version_id="1" version_string="dev"><![CDATA[Move Now]]></phrase>
     <phrase title="bdgoogledrive_please_confirm_that_you_want_to_delete_following_account" version_id="1" version_string="dev"><![CDATA[Account deletion will prevent file clean up from running for existing attachments. Please confirm that you want to delete the following account]]></phrase>
     <phrase title="bdgoogledrive_quota_information" version_id="1" version_string="dev"><![CDATA[Used {used_percent}% of {total}, free: {free}]]></phrase>
     <phrase title="bdgoogledrive_quota_type" version_id="1" version_string="dev"><![CDATA[Quota Type]]></phrase>

@@ -184,6 +184,7 @@ class bdGoogleDrive_Helper_Api
             $fileArray['id'] = $createdFile->getId();
             $fileArray['title'] = $createdFile->getTitle();
             $fileArray['link'] = $createdFile->getWebContentLink();
+            $fileArray['userId'] = self::_parseUserId($client, $accessToken);
 
             self::_log('file uploaded ($fileName=%s, strlen($fileData)=%d, $mimeType=%s, $fileId=%s)',
                 $fileName, strlen($fileData), $mimeType, $fileArray['id']);

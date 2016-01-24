@@ -7,23 +7,16 @@ class bdGoogleDrive_Model_File extends XenForo_Model
         return false;
     }
 
-    public function saveFilePath($path, $fileName, $fileHash, $accessToken = null)
+    public function saveFilePath($path, $parentId, $fileName, $fileHash, $accessToken)
     {
-        return $this->saveFileData(file_get_contents($path), $fileName, $fileHash, $accessToken);
+        return $this->saveFileData(file_get_contents($path), $parentId, $fileName, $fileHash, $accessToken);
     }
 
-    public function saveFileData($data, $fileName, $fileHash, $accessToken = null)
+    public function saveFileData($data, $parentId, $fileName, $fileHash, $accessToken)
     {
-        if ($accessToken === null) {
-            $accessToken = bdGoogleDrive_Option::getAccessToken();
-        }
-        if (empty($accessToken)) {
-            return array();
-        }
-
         $createdFile = bdGoogleDrive_Helper_Api::uploadFile($accessToken, $fileName, $data, array(
             'description' => $fileHash,
-            'parentId' => bdGoogleDrive_Option::getDefaultFolderId(),
+            'parentId' => $parentId,
         ));
 
         if (!empty($createdFile['id'])) {
@@ -35,19 +28,24 @@ class bdGoogleDrive_Model_File extends XenForo_Model
         return $createdFile;
     }
 
-    public function deleteFile(array $file, $accessToken = null)
+    public function deleteFile(array $file)
     {
-        if ($accessToken === null) {
-            $accessToken = bdGoogleDrive_Option::getAccessToken();
+        if (!empty($file['userId'])) {
+            $accessToken = bdGoogleDrive_Option::getUserAccessToken($file['userId']);
+        } else {
+            $accessToken = bdGoogleDrive_Option::getDefaultAccessToken();
         }
         if (empty($accessToken)) {
+            XenForo_Error::logError(sprintf('Cannot delete remote file. '
+                . 'Google Drive token not found for file %s', $file['id']));
+
             return false;
         }
 
         try {
             return bdGoogleDrive_Helper_Api::deleteFile($accessToken, $file['id']);
-        } catch (Exception $t) {
-            // ignore
+        } catch (Exception $e) {
+            XenForo_Error::logException($e, false);
         }
 
         return false;

@@ -2,19 +2,27 @@
 
 class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive_XenForo_DataWriter_AttachmentData
 {
-    public function bdGoogleDrive_saveFiles($accessToken)
+    public function bdGoogleDrive_saveFiles()
     {
         $fullGoogleFile = null;
         $thumbnailGoogleFile = null;
 
+        $accessToken = bdGoogleDrive_Option::getDefaultAccessToken();
+        $folderId = bdGoogleDrive_Option::getDefaultFolderId();
+        if (empty($accessToken)
+            || empty($folderId)
+        ) {
+            return array();
+        }
+
         $tempFile = $this->getExtraData(self::DATA_TEMP_FILE);
         $fileData = $this->getExtraData(self::DATA_FILE_DATA);
         if ($tempFile) {
-            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempFile, $this->get('filename'),
-                $this->get('file_hash'), $accessToken);
+            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempFile, $folderId,
+                $this->get('filename'), $this->get('file_hash'), $accessToken);
         } elseif ($fileData) {
-            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $this->get('filename'),
-                $this->get('file_hash'), $accessToken);
+            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $folderId,
+                $this->get('filename'), $this->get('file_hash'), $accessToken);
         }
         if (empty($fullGoogleFile)) {
             return false;
@@ -29,19 +37,28 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
         $thumbFileName = $fileNameWithoutExt . '_thumb.jpg';
 
         if ($tempThumbFile) {
-            $thumbFileHash = md5_file($tempThumbFile);
-            $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempThumbFile, $thumbFileName,
-                $thumbFileHash, $accessToken);
+            if (file_exists($tempThumbFile)
+                && is_readable($tempThumbFile)
+            ) {
+                $thumbFileHash = md5_file($tempThumbFile);
+                $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempThumbFile, $folderId,
+                    $thumbFileName, $thumbFileHash, $accessToken);
+            }
         } elseif ($thumbData) {
             $thumbFileHash = md5($thumbData);
-            $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $thumbFileName,
-                $thumbFileHash, $accessToken);
+            $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $folderId,
+                $thumbFileName, $thumbFileHash, $accessToken);
         }
 
-        return array(
-            'full' => $fullGoogleFile,
-            'thumbnail' => $thumbnailGoogleFile,
-        );
+        $savedFiles = array();
+        if (!empty($fullGoogleFile)) {
+            $savedFiles['full'] = $fullGoogleFile;
+        }
+        if (!empty($thumbnailGoogleFile)) {
+            $savedFiles['thumbnail'] = $thumbnailGoogleFile;
+        }
+
+        return $savedFiles;
     }
 
     protected function _getFields()
@@ -66,10 +83,8 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
             if (empty($data)
                 && !$fileModel->isIgnored($attachmentData)
             ) {
-                $accessToken = bdGoogleDrive_Option::getAccessToken();
-
-                if (!empty($accessToken)) {
-                    $savedFiles = $this->bdGoogleDrive_saveFiles($accessToken);
+                $savedFiles = $this->bdGoogleDrive_saveFiles();
+                if (!empty($savedFiles)) {
                     $this->set('bdgoogledrive_data', $savedFiles);
                 }
             }

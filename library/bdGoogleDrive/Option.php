@@ -41,7 +41,19 @@ class bdGoogleDrive_Option
         }
     }
 
-    public static function getAccessToken()
+    public static function getUserAccessToken($userId)
+    {
+        $accounts = self::get('accounts');
+        if (isset($accounts[$userId])
+            && !empty($accounts[$userId]['accessToken'])
+        ) {
+            return $accounts[$userId]['accessToken'];
+        }
+
+        return '';
+    }
+
+    public static function getDefaultAccessToken()
     {
         static $accessToken = null;
 
@@ -49,12 +61,16 @@ class bdGoogleDrive_Option
             $accessToken = '';
             $defaultFolderId = self::getDefaultFolderId();
 
-            if (!empty($defaultFolderId)) {
-                $accounts = self::get('accounts');
-                foreach ($accounts as $account) {
-                    if (!empty($account['folders'][$defaultFolderId])) {
-                        $accessToken = $account['accessToken'];
-                    }
+            $accounts = self::get('accounts');
+            foreach ($accounts as $account) {
+                if (empty($account['accessToken'])) {
+                    continue;
+                }
+
+                if (empty($defaultFolderId)
+                    || isset($account['folders'][$defaultFolderId])
+                ) {
+                    $accessToken = $account['accessToken'];
                 }
             }
         }
@@ -85,6 +101,10 @@ class bdGoogleDrive_Option
         $accounts = $preparedOption['option_value'];
 
         foreach ($accounts as &$accountRef) {
+            if (empty($accountRef['accessToken'])) {
+                continue;
+            }
+
             try {
                 $accountRef['about'] = bdGoogleDrive_Helper_Api::fetchAbout($accountRef['accessToken']);
             } catch (Exception $e) {
