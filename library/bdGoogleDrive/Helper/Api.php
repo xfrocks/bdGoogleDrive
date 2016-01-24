@@ -123,6 +123,8 @@ class bdGoogleDrive_Helper_Api
             $pageToken = $response->getNextPageToken();
         } while ($pageToken != null);
 
+        self::_log('sub-folders fetched ($folderId=%s, count($subFolders)=%d)', $folderId, count($subFolders));
+
         return $subFolders;
     }
 
@@ -183,6 +185,9 @@ class bdGoogleDrive_Helper_Api
             $fileArray['title'] = $createdFile->getTitle();
             $fileArray['link'] = $createdFile->getWebContentLink();
 
+            self::_log('file uploaded ($fileName=%s, strlen($fileData)=%d, $mimeType=%s, $fileId=%s)',
+                $fileName, strlen($fileData), $mimeType, $fileArray['id']);
+
             return $fileArray;
         } else {
             throw new XenForo_Exception(sprintf('Unable to get upload file to Google (accessToken=%s)', $accessToken));
@@ -204,6 +209,8 @@ class bdGoogleDrive_Helper_Api
         if (is_object($createdPermission)
             && $createdPermission instanceof Google_Service_Drive_Permission
         ) {
+            self::_log('file made public ($fileId=%s)', $fileId);
+
             return true;
         } else {
             throw new XenForo_Exception(sprintf('Unable to make file public (accessToken=%s, fileId=%s)', $accessToken,
