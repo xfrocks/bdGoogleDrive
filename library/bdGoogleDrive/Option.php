@@ -2,11 +2,22 @@
 
 class bdGoogleDrive_Option
 {
+    protected static $_defaultFolderId = null;
+    protected static $_defaultAccessToken = null;
+
     public static function set($key, $value)
     {
+        if ($key === 'accounts') {
+            self::$_defaultAccessToken = null;
+            self::$_defaultFolderId = null;
+        }
+
+        $optionKey = 'bdGoogleDrive_' . $key;
+        XenForo_Application::getOptions()->set($optionKey, false, $value);
+
         /** @var XenForo_Model_Option $optionModel */
         $optionModel = XenForo_Model::create('XenForo_Model_Option');
-        return $optionModel->updateOption('bdGoogleDrive_' . $key, $value);
+        return $optionModel->updateOption($optionKey, $value);
     }
 
     public static function get($key, $subKey = null)
@@ -55,10 +66,8 @@ class bdGoogleDrive_Option
 
     public static function getDefaultAccessToken()
     {
-        static $accessToken = null;
-
-        if ($accessToken === null) {
-            $accessToken = '';
+        if (self::$_defaultAccessToken === null) {
+            self::$_defaultAccessToken = '';
             $defaultFolderId = self::getDefaultFolderId();
 
             $accounts = self::get('accounts');
@@ -70,30 +79,28 @@ class bdGoogleDrive_Option
                 if (empty($defaultFolderId)
                     || isset($account['folders'][$defaultFolderId])
                 ) {
-                    $accessToken = $account['accessToken'];
+                    self::$_defaultAccessToken = $account['accessToken'];
                 }
             }
         }
 
-        return $accessToken;
+        return self::$_defaultAccessToken;
     }
 
     public static function getDefaultFolderId()
     {
-        static $defaultFolderId = null;
-
-        if ($defaultFolderId === null) {
-            $defaultFolderId = '';
+        if (self::$_defaultFolderId === null) {
+            self::$_defaultFolderId = '';
 
             $accounts = self::get('accounts');
             if (isset($accounts['default'])
                 && !empty($accounts['default']['folderId'])
             ) {
-                $defaultFolderId = $accounts['default']['folderId'];
+                self::$_defaultFolderId = $accounts['default']['folderId'];
             }
         }
 
-        return $defaultFolderId;
+        return self::$_defaultFolderId;
     }
 
     public static function renderAccounts(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
