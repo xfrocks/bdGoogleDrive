@@ -241,6 +241,16 @@ class bdGoogleDrive_Helper_Api
         if ($client === null) {
             $client = new Google_Client();
 
+            $client->setClassConfig('Google_Task_Runner', 'retries', 3);
+
+//            if (XenForo_Application::debugMode()) {
+//                $client->setClassConfig('Google_Logger_File', 'file',
+//                    XenForo_Helper_File::getInternalDataPath() . '/bdGoogleDrive_Lib_google-api-php-client.log');
+//                $client->setClassConfig('Google_Logger_File', 'mode', 0777);
+//                $client->setClassConfig('Google_Logger_File', 'lock', '');
+//                $client->setLogger(new Google_Logger_File($client));
+//            }
+
             $auth = $client->getAuth();
             if (!($auth instanceof Google_Auth_OAuth2)) {
                 throw new XenForo_Exception(sprintf('Unexpected Google Auth instance: %s', get_class($auth)));
