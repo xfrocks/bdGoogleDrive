@@ -4,12 +4,16 @@ class bdGoogleDrive_Option
 {
     protected static $_defaultFolderId = null;
     protected static $_defaultAccessToken = null;
+    protected static $_thumbnailFolderId = null;
+    protected static $_thumbnailAccessToken = null;
 
     public static function set($key, $value)
     {
         if ($key === 'accounts') {
             self::$_defaultAccessToken = null;
             self::$_defaultFolderId = null;
+            self::$_thumbnailAccessToken = null;
+            self::$_thumbnailFolderId = null;
         }
 
         $optionKey = 'bdGoogleDrive_' . $key;
@@ -103,9 +107,51 @@ class bdGoogleDrive_Option
         return self::$_defaultFolderId;
     }
 
+    public static function getThumbnailAccessToken()
+    {
+        if (self::$_thumbnailAccessToken === null) {
+            self::$_thumbnailAccessToken = '';
+            $thumbnailFolderId = self::getDefaultFolderId();
+
+            $accounts = self::get('accounts');
+            foreach ($accounts as $account) {
+                if (empty($account['accessToken'])) {
+                    continue;
+                }
+
+                if (isset($account['folders'][$thumbnailFolderId])) {
+                    self::$_thumbnailAccessToken = $account['accessToken'];
+                }
+            }
+        }
+
+        return self::$_thumbnailAccessToken;
+    }
+
+    public static function getThumbnailFolderId()
+    {
+        if (self::$_thumbnailFolderId === null) {
+            self::$_thumbnailFolderId = '';
+
+            $accounts = self::get('accounts');
+            if (isset($accounts['thumbnail'])
+                && !empty($accounts['thumbnail']['folderId'])
+            ) {
+                self::$_defaultFolderId = $accounts['thumbnail']['folderId'];
+            }
+
+            if (self::$_thumbnailFolderId === '') {
+                self::$_thumbnailFolderId = self::getDefaultFolderId();
+            }
+        }
+
+        return self::$_thumbnailFolderId;
+    }
+
     public static function renderAccounts(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
     {
         $accounts = $preparedOption['option_value'];
+        $folders = array();
 
         foreach ($accounts as &$accountRef) {
             if (empty($accountRef['accessToken'])) {
@@ -116,6 +162,12 @@ class bdGoogleDrive_Option
                 $accountRef['about'] = bdGoogleDrive_Helper_Api::fetchAbout($accountRef['accessToken']);
             } catch (Exception $e) {
                 XenForo_Error::logException($e, false);
+            }
+
+            if (!empty($accountRef['folders'])) {
+                foreach ($accountRef['folders'] as $folderId => &$accountFolderRef) {
+                    $folders[$accountRef['userInfo']['name']][$folderId] = $accountFolderRef['title'];
+                }
             }
         }
 
@@ -132,6 +184,7 @@ class bdGoogleDrive_Option
             'editLink' => $editLink,
 
             'accounts' => $accounts,
+            'folders' => $folders,
         ));
     }
 }

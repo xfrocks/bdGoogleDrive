@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="bdGoogleDrive" title="[bd] Google Drive for Attachments" version_string="1.0.1" version_id="1000100" url="" install_callback_class="bdGoogleDrive_Installer" install_callback_method="install" uninstall_callback_class="bdGoogleDrive_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="bdGoogleDrive" title="[bd] Google Drive for Attachments" version_string="1.1.0" version_id="1010000" url="" install_callback_class="bdGoogleDrive_Installer" install_callback_method="install" uninstall_callback_class="bdGoogleDrive_Installer" uninstall_callback_method="uninstall">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -110,6 +110,14 @@
 	</xen:html>
 </xen:controlunit>
 
+<xen:selectunit label="{xen:phrase bdgoogledrive_thumbnail_folder}"
+				name="{$fieldPrefix}[{$preparedOption.option_id}][thumbnail][folderId]"
+				value="{$accounts.thumbnail.folderId}">
+	<xen:explain>{xen:phrase bdgoogledrive_thumbnail_folder_explain}</xen:explain>
+	<xen:option value="">{xen:phrase bdgoogledrive_thumbnail_folder_default}</xen:option>
+	<xen:options source="{$folders}" />
+</xen:selectunit>
+
 <xen:edithint template="bdgoogledrive_accounts_delete" />
 ]]></template>
     <template title="bdgoogledrive_tools_rebuild"><![CDATA[<xen:form action="{xen:adminlink 'tools/trigger-deferred'}">
@@ -200,7 +208,7 @@
     <phrase title="bdgoogledrive_quota_information" version_id="1" version_string="dev"><![CDATA[Used {used_percent}% of {total}, free: {free}]]></phrase>
     <phrase title="bdgoogledrive_quota_type" version_id="1" version_string="dev"><![CDATA[Quota Type]]></phrase>
     <phrase title="option_bdGoogleDrive_accounts" version_id="1" version_string="dev"><![CDATA[Accounts]]></phrase>
-    <phrase title="option_bdGoogleDrive_accounts_explain" version_id="1" version_string="dev"><![CDATA[]]></phrase>
+    <phrase title="option_bdGoogleDrive_accounts_explain" version_id="1000200" version_string="1.0.2"><![CDATA[Add one or more Google Drive accounts (Google Apps account is supported) then select one of their folders to use as the default upload location. It's important to avoid deleting added account otherwise existing attachments may stop working.]]></phrase>
     <phrase title="option_bdGoogleDrive_clientDefault" version_id="1" version_string="dev"><![CDATA[Use Default Client]]></phrase>
     <phrase title="option_bdGoogleDrive_clientDefault_explain" version_id="1" version_string="dev"><![CDATA[Enable this option to use the default client configured in <a href="admin.php?options/list/google" target="_blank" tabindex="-1">"Google Integration" option page</a>.]]></phrase>
     <phrase title="option_bdGoogleDrive_clientId" version_id="1" version_string="dev"><![CDATA[Google Client ID]]></phrase>

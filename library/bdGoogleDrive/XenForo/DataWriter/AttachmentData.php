@@ -4,28 +4,36 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
 {
     public function bdGoogleDrive_saveFiles()
     {
-        $fullGoogleFile = null;
-        $thumbnailGoogleFile = null;
+        $savedFiles = array();
+        if (!$this->isInsert()) {
+            $savedFiles = $this->get('bdgoogledrive_data');
+            if (!is_array($savedFiles)) {
+                $savedFiles = @unserialize($savedFiles);
+            }
+            if (!is_array($savedFiles)) {
+                $savedFiles = array();
+            }
+        }
 
         $accessToken = bdGoogleDrive_Option::getDefaultAccessToken();
         $folderId = bdGoogleDrive_Option::getDefaultFolderId();
         if (empty($accessToken)
             || empty($folderId)
         ) {
-            return array();
+            return $savedFiles;
         }
 
         $tempFile = $this->getExtraData(self::DATA_TEMP_FILE);
         $fileData = $this->getExtraData(self::DATA_FILE_DATA);
         if ($tempFile) {
-            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempFile, $folderId,
+            $savedFiles['full'] = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempFile, $folderId,
                 $this->get('filename'), $this->get('file_hash'), $accessToken);
         } elseif ($fileData) {
-            $fullGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $folderId,
+            $savedFiles['full'] = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $folderId,
                 $this->get('filename'), $this->get('file_hash'), $accessToken);
         }
-        if (empty($fullGoogleFile)) {
-            return false;
+        if (empty($savedFiles['full'])) {
+            return $savedFiles;
         }
 
         $tempThumbFile = $this->getExtraData(self::DATA_TEMP_THUMB_FILE);
@@ -36,26 +44,20 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
             : $this->get('filename');
         $thumbFileName = $fileNameWithoutExt . '_thumb.jpg';
 
+        $thumbnailAccessToken = bdGoogleDrive_Option::getThumbnailAccessToken();
+        $thumbnailFolderId = bdGoogleDrive_Option::getThumbnailFolderId();
         if ($tempThumbFile) {
             if (file_exists($tempThumbFile)
                 && is_readable($tempThumbFile)
             ) {
                 $thumbFileHash = md5_file($tempThumbFile);
-                $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempThumbFile, $folderId,
-                    $thumbFileName, $thumbFileHash, $accessToken);
+                $savedFiles['thumbnail'] = $this->_bdGoogleDrive_getFileModel()->saveFilePath($tempThumbFile,
+                    $thumbnailFolderId, $thumbFileName, $thumbFileHash, $thumbnailAccessToken);
             }
         } elseif ($thumbData) {
             $thumbFileHash = md5($thumbData);
-            $thumbnailGoogleFile = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $folderId,
-                $thumbFileName, $thumbFileHash, $accessToken);
-        }
-
-        $savedFiles = array();
-        if (!empty($fullGoogleFile)) {
-            $savedFiles['full'] = $fullGoogleFile;
-        }
-        if (!empty($thumbnailGoogleFile)) {
-            $savedFiles['thumbnail'] = $thumbnailGoogleFile;
+            $savedFiles['thumbnail'] = $this->_bdGoogleDrive_getFileModel()->saveFileData($fileData, $thumbnailFolderId,
+                $thumbFileName, $thumbFileHash, $thumbnailAccessToken);
         }
 
         return $savedFiles;
