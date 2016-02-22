@@ -15,18 +15,37 @@ class bdGoogleDrive_XenForo_Model_Attachment extends XFCP_bdGoogleDrive_XenForo_
         }
     }
 
-    public function bdGoogleDrive_getAttachmentDataFilePath(array $data)
+    public function bdGoogleDrive_getDummyFilePath()
     {
+        $path = XenForo_Helper_File::getInternalDataPath() . '/bdGoogleDrive/dummy.data';
+        if (!file_exists($path)) {
+            $dir = dirname($path);
+            if (XenForo_Helper_File::createDirectory($dir)) {
+                file_put_contents($path, '');
+            }
+        }
+
+        return $path;
+    }
+
+    public function bdGoogleDrive_getAttachmentDataFilePath(array $data, $filePath)
+    {
+        if (file_exists($filePath)) {
+            return $filePath;
+        }
+
         if (!empty($data['bdgoogledrive_data'])) {
             if (self::$_bdGoogleStorage_useTempFile > 0) {
                 $googleDriveData = @unserialize($data['bdgoogledrive_data']);
                 $fileUrl = $this->_bdGoogleDrive_getFileModel()->getFileUrl($googleDriveData['full']);
                 $tempFile = bdGoogleDrive_ShippableHelper_TempFile::download($fileUrl);
                 return $tempFile;
+            } else {
+                return $this->bdGoogleDrive_getDummyFilePath();
             }
         }
 
-        return false;
+        return $filePath;
     }
 
     public function getAttachmentThumbnailUrl(array $data)
@@ -44,13 +63,9 @@ class bdGoogleDrive_XenForo_Model_Attachment extends XFCP_bdGoogleDrive_XenForo_
 
     public function getAttachmentDataFilePath(array $data, $internalDataPath = null)
     {
-        $ours = $this->bdGoogleDrive_getAttachmentDataFilePath($data);
+        $parents = parent::getAttachmentDataFilePath($data, $internalDataPath);
 
-        if ($ours !== false) {
-            return $ours;
-        }
-
-        return parent::getAttachmentDataFilePath($data, $internalDataPath);
+        return $this->bdGoogleDrive_getAttachmentDataFilePath($data, $parents);
     }
 
     /**
