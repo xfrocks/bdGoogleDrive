@@ -76,19 +76,11 @@ class bdGoogleDrive_XenForo_DataWriter_AttachmentData extends XFCP_bdGoogleDrive
     {
         parent::_preSave();
 
-        if ($this->isInsert()) {
-            $attachmentData = $this->getMergedData();
-
-            $data = $this->get('bdgoogledrive_data');
-            $fileModel = $this->_bdGoogleDrive_getFileModel();
-
-            if (empty($data)
-                && !$fileModel->isIgnored($attachmentData)
-            ) {
-                $savedFiles = $this->bdGoogleDrive_saveFiles();
-                if (!empty($savedFiles)) {
-                    $this->set('bdgoogledrive_data', $savedFiles);
-                }
+        $attachmentData = $this->getMergedData();
+        if (!$this->_bdGoogleDrive_getFileModel()->isIgnored($attachmentData)) {
+            $savedFiles = $this->bdGoogleDrive_saveFiles();
+            if (!empty($savedFiles) || $this->get('bdgoogledrive_data')) {
+                $this->set('bdgoogledrive_data', $savedFiles);
             }
         }
     }
