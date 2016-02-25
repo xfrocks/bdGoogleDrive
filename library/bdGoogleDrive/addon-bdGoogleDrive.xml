@@ -207,6 +207,9 @@
     <phrase title="bdgoogledrive_please_confirm_that_you_want_to_delete_following_account" version_id="1" version_string="dev"><![CDATA[Account deletion will prevent file clean up from running for existing attachments. Please confirm that you want to delete the following account]]></phrase>
     <phrase title="bdgoogledrive_quota_information" version_id="1" version_string="dev"><![CDATA[Used {used_percent}% of {total}, free: {free}]]></phrase>
     <phrase title="bdgoogledrive_quota_type" version_id="1" version_string="dev"><![CDATA[Quota Type]]></phrase>
+    <phrase title="bdgoogledrive_thumbnail_folder" version_id="1010001" version_string="1.1.0"><![CDATA[Thumbnail Folder]]></phrase>
+    <phrase title="bdgoogledrive_thumbnail_folder_default" version_id="1010001" version_string="1.1.0"><![CDATA[Default Folder]]></phrase>
+    <phrase title="bdgoogledrive_thumbnail_folder_explain" version_id="1010001" version_string="1.1.0"><![CDATA[]]></phrase>
     <phrase title="option_bdGoogleDrive_accounts" version_id="1" version_string="dev"><![CDATA[Accounts]]></phrase>
     <phrase title="option_bdGoogleDrive_accounts_explain" version_id="1000200" version_string="1.0.2"><![CDATA[Add one or more Google Drive accounts (Google Apps account is supported) then select one of their folders to use as the default upload location. It's important to avoid deleting added account otherwise existing attachments may stop working.]]></phrase>
     <phrase title="option_bdGoogleDrive_clientDefault" version_id="1" version_string="dev"><![CDATA[Use Default Client]]></phrase>
