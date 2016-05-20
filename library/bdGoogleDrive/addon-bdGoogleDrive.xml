@@ -141,7 +141,6 @@
   <code_events/>
   <code_event_listeners>
     <listener event_id="file_health_check" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
-    <listener event_id="init_dependencies" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="init_dependencies" active="1" hint="" description=""/>
     <listener event_id="load_class_datawriter" execute_order="0" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_DataWriter_AttachmentData" active="1" hint="XenForo_DataWriter_AttachmentData" description="Extending XenForo_DataWriter_AttachmentData (no Event Hint because this need executing asap)"/>
     <listener event_id="load_class_model" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_Model_Attachment" active="1" hint="XenForo_Model_Attachment" description="XenForo_Model_Attachment"/>
     <listener event_id="load_class_view" execute_order="10" callback_class="bdGoogleDrive_Listener" callback_method="load_class_XenForo_ViewPublic_Attachment_View" active="1" hint="XenForo_ViewPublic_Attachment_View" description="XenForo_ViewPublic_Attachment_View"/>

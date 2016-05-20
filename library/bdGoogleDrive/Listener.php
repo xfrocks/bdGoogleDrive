@@ -1,12 +1,9 @@
 <?php
 
+XenForo_Model_Attachment::$dataColumns .= ', bdgoogledrive_data';
+
 class bdGoogleDrive_Listener
 {
-    public static function init_dependencies(XenForo_Dependencies_Abstract $dependencies, array $data)
-    {
-        XenForo_Model_Attachment::$dataColumns .= ', bdgoogledrive_data';
-    }
-
     public static function file_health_check(XenForo_ControllerAdmin_Abstract $controller, array &$hashes)
     {
         $hashes += bdGoogleDrive_FileSums::getHashes();
